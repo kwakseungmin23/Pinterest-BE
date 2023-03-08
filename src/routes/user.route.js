@@ -18,8 +18,8 @@ const userSchema = Joi.object({
 router.post('/signup', async (req, res) => {
   try {
     const { email, password, nickname } = req.body;
-    await userSchema.validateAsync(req.body); // => validation 'user' with using Joi validator.
-    const hash = await bcrypt.hash(password, 10); // => using hash to make password safer.
+    await userSchema.validateAsync(req.body);
+    const hash = await bcrypt.hash(password, process.env.salt);
     const user = await Users.create({ email, password: hash, nickname });
     return res
       .status(200)
@@ -45,10 +45,10 @@ router.post('/login', async (req, res) => {
         });
         return res.status(200).json({ msg: 'login successful' });
       } else {
-        return res.status(400).json({ msg: 'wrong password.' });
+        return res.status(400).json({ msg: 'wrong password or user.' });
       }
     } else {
-      return res.status(400).json({ msg: 'User not found.' });
+      return res.status(400).json({ msg: 'wrong password or user.' });
     }
   } catch (err) {
     console.log(err);
